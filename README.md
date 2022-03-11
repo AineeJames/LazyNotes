@@ -1,6 +1,6 @@
 # LazyNotes
 
-![output](https://user-images.githubusercontent.com/71784728/157967973-eb938afd-7391-4028-bc90-f88415512ae7.png)
+<img src="imgs/exampleout.png" alt="example output" width="200"/>
 
 ## Description:
 LazyNotes utilizes opencv, packer, and other tools to create note sheets
