@@ -8,18 +8,29 @@ from difPy import dif
 import subprocess
 import math
 
+# get a list of all the files to process
 onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
 print(f"Number of files to capture: {len(onlyfiles)}")
 
+# clear the extracted directory
 extfiles = [f for f in listdir("extracted") if isfile(join("extracted", f))]
 print(f"Clearing {len(extfiles)} files in the ./extracted directory...")
 for i in range(len(extfiles)):
     remove(f"extracted/{extfiles[i]}")
 
+# remove output file if it exists
+try:
+    print("Removing output file...")
+    remove("output.png")
+except:
+    print("Output file not found, continuing...")
+
 cropnum = 0
 
-areaminthresh = 70_000
-areamaxthresh = 200_000
+# box area threshholds
+areaminthresh = 50_000  # best val so far:  75_000
+areamaxthresh = 750_000 # best val so far: 750_000
+
 print("Capturing boxes:")
 for i in tqdm(range(len(onlyfiles))):
 
@@ -50,10 +61,16 @@ for i in tqdm(range(len(onlyfiles))):
     mask = np.ones(img.shape[:2], dtype="uint8") * 255
     for c in contours:
 
+        # estimate the number of sides based on the contour
+        peri = cv2.arcLength(c, True) 
+        vertices = cv2.approxPolyDP(c, 0.02 * peri, True)
+        sides = len(vertices) 
+        # print(f"Sides: {sides}")
+
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
 
-        if w * h > areaminthresh * (scale_percent/100) and w * h < areamaxthresh * (scale_percent/100):
+        if w * h > areaminthresh * (scale_percent/100) and w * h < areamaxthresh * (scale_percent/100) and sides == 4:
 
             cv2.rectangle(mask, (x, y), (x + w, y + h), (0, 0, 255), -1)
             cropped_box = img[y : y + h, x : x + w]
