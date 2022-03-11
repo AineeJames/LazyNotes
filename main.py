@@ -58,11 +58,13 @@ for i in tqdm(range(len(onlyfiles))):
 
     res_final = cv2.bitwise_and(img, img, mask=cv2.bitwise_not(mask))
 
+print(f"Produced {cropnum} cropped images.")
+
 print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 print("Running packer...")
-args = ['python', 'packer.py', '--input_dir', 'extracted', '--width', '2500', '--aspect', f'{math.sqrt(2)}', '--border', '3']
+args = ['python3', 'packer.py', '--input_dir', 'extracted', '--width', '2500', '--aspect', f'{math.sqrt(2)}', '--border', '3']
 subprocess.run(args)
 
     # cv2.imshow("boxes", mask)
