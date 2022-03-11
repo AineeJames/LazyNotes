@@ -69,10 +69,7 @@ print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 print("Running packer...")
-<<<<<<< HEAD
-args = ['python3', 'packer.py', '--input_dir', 'extracted', '--width', '2500', '--aspect', f'{math.sqrt(2)}', '--border', '3']
-subprocess.run(args)
-=======
+
 args = [
     "python3",
     "packer.py",
@@ -91,4 +88,3 @@ subprocess.run(args)
 # cv2.imshow("final image", res_final)
 # cv2.waitKey(0)
 # cv2.destroyAllWindows()
->>>>>>> 1caa6d82286102b0d17f2406dd15ed380eb807e0
