@@ -2,7 +2,7 @@ import cv2
 import time  # for framerate
 import numpy as np
 from tqdm import tqdm
-from os import listdir
+from os import listdir, remove
 from os.path import isfile, join
 from difPy import dif
 import subprocess
@@ -11,16 +11,21 @@ import math
 onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
 print(f"Number of files to capture: {len(onlyfiles)}")
 
+extfiles = [f for f in listdir("extracted") if isfile(join("extracted", f))]
+print(f"Clearing {len(extfiles)} files in the ./extracted directory...")
+for i in range(len(extfiles)):
+    remove(f"extracted/{extfiles[i]}")
+
 cropnum = 0
 
-# good val:  40000
-areaminthresh = 70000
-areamaxthresh = 90000
+areaminthresh = 70_000
+areamaxthresh = 200_000
+print("Capturing boxes:")
 for i in tqdm(range(len(onlyfiles))):
 
     img = cv2.imread(f"slides/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
 
-    scale_percent = 30  # percent of original size
+    scale_percent = 50  # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
@@ -79,7 +84,7 @@ args = [
     "--input_dir",
     "extracted",
     "--width",
-    "2500",
+    "4000",
     "--aspect",
     f"{math.sqrt(2)}",
     "--border",
