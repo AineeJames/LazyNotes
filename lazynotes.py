@@ -29,7 +29,6 @@ cropnum = 0
 
 # box area threshholds
 areaminthresh = 75_000  # best val so far:  75_000
-areamaxthresh = 750_000 # best val so far: 750_000
 
 print("Capturing boxes:")
 for i in tqdm(range(len(onlyfiles))):
@@ -60,7 +59,7 @@ for i in tqdm(range(len(onlyfiles))):
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
 
-        if w * h > areaminthresh and w * h < areamaxthresh and sides == 4:
+        if w * h > areaminthresh and sides == 4:
 
             cv2.rectangle(mask, (x, y), (x + w, y + h), (0, 0, 255), -1)
             cropped_box = img[y : y + h, x : x + w]
