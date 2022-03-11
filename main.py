@@ -1,5 +1,5 @@
 import cv2
-import time # for framerate
+import time  # for framerate
 import numpy as np
 from tqdm import tqdm
 from os import listdir
@@ -16,26 +16,26 @@ cropnum = 0
 for i in tqdm(range(len(onlyfiles))):
 
     img = cv2.imread(f"slides/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
-    
-    #print('Original Dimensions : ',img.shape)
-    
-    scale_percent = 20 # percent of original size
+
+    # print('Original Dimensions : ',img.shape)
+
+    scale_percent = 40  # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
-    
+
     # resize image
-    img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
-    #print('New Dimensions : ',img.shape)
+    img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+    # print('New Dimensions : ',img.shape)
 
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    thresh_inv = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)[1]
+    thresh_inv = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
 
     # Blur the image
-    blur = cv2.GaussianBlur(thresh_inv,(1,1),0)
+    blur = cv2.GaussianBlur(thresh_inv, (1, 1), 0)
 
-    thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
+    thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     # cv2.imshow("thresh", thresh)
 
     # find contours
@@ -45,11 +45,11 @@ for i in tqdm(range(len(onlyfiles))):
     for c in contours:
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
-        if w*h>25000/3:
-            cv2.rectangle(mask, (x, y), (x+w, y+h), (0, 0, 255), -1)
+        if w * h > 50000 / 3:
+            cv2.rectangle(mask, (x, y), (x + w, y + h), (0, 0, 255), -1)
             # print(f"x: {x}, y: {y}, w: {w}, h: {h}\n")
-            cropped_box = img[y:y+h, x:x+w]
-            
+            cropped_box = img[y : y + h, x : x + w]
+
             cropnum += 1
 
             # scale the cropped box back up for output
@@ -69,5 +69,26 @@ print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 print("Running packer...")
+<<<<<<< HEAD
 args = ['python3', 'packer.py', '--input_dir', 'extracted', '--width', '2500', '--aspect', f'{math.sqrt(2)}', '--border', '3']
 subprocess.run(args)
+=======
+args = [
+    "python3",
+    "packer.py",
+    "--input_dir",
+    "extracted",
+    "--width",
+    "2500",
+    "--aspect",
+    f"{math.sqrt(2)}",
+    "--border",
+    "3",
+]
+subprocess.run(args)
+
+# cv2.imshow("boxes", mask)
+# cv2.imshow("final image", res_final)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+>>>>>>> 1caa6d82286102b0d17f2406dd15ed380eb807e0
