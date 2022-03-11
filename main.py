@@ -51,10 +51,15 @@ for i in tqdm(range(len(onlyfiles))):
             cropped_box = img[y:y+h, x:x+w]
             
             cropnum += 1
-            cv2.imwrite(f"extracted/crop_{cropnum}.jpg", cropped_box)
 
-            # cv2.imshow("crop", cropped_box)
-            # cv2.waitKey(0)
+            # scale the cropped box back up for output
+            scale_percent = 200
+            width = int(cropped_box.shape[1] * scale_percent / 100)
+            height = int(cropped_box.shape[0] * scale_percent / 100)
+            dim = (width, height)
+            cropped_box_sized = cv2.resize(cropped_box, dim, interpolation = cv2.INTER_AREA)
+
+            cv2.imwrite(f"extracted/crop_{cropnum}.jpg", cropped_box_sized)
 
     res_final = cv2.bitwise_and(img, img, mask=cv2.bitwise_not(mask))
 
@@ -66,8 +71,3 @@ search = dif("extracted", delete=True, silent_del=True)
 print("Running packer...")
 args = ['python3', 'packer.py', '--input_dir', 'extracted', '--width', '2500', '--aspect', f'{math.sqrt(2)}', '--border', '3']
 subprocess.run(args)
-
-    # cv2.imshow("boxes", mask)
-    # cv2.imshow("final image", res_final)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
