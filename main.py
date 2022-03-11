@@ -28,7 +28,7 @@ except:
 cropnum = 0
 
 # box area threshholds
-areaminthresh = 50_000  # best val so far:  75_000
+areaminthresh = 75_000  # best val so far:  75_000
 areamaxthresh = 750_000 # best val so far: 750_000
 
 print("Capturing boxes:")
@@ -43,7 +43,6 @@ for i in tqdm(range(len(onlyfiles))):
 
     # resize image
     img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
-    # print('New Dimensions : ',img.shape)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -65,7 +64,6 @@ for i in tqdm(range(len(onlyfiles))):
         peri = cv2.arcLength(c, True) 
         vertices = cv2.approxPolyDP(c, 0.02 * peri, True)
         sides = len(vertices) 
-        # print(f"Sides: {sides}")
 
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
