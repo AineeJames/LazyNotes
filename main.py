@@ -106,8 +106,3 @@ args = [
     "3"
 ]
 subprocess.run(args)
-
-# cv2.imshow("boxes", mask)
-# cv2.imshow("final image", res_final)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
