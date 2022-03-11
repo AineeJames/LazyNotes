@@ -12,12 +12,13 @@ onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
 print(f"Number of files to capture: {len(onlyfiles)}")
 
 cropnum = 0
-areathresh = 41666
+
+# good val:  40000
+areaminthresh = 70000
+areamaxthresh = 90000
 for i in tqdm(range(len(onlyfiles))):
 
     img = cv2.imread(f"slides/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
-
-    # print('Original Dimensions : ',img.shape)
 
     scale_percent = 30  # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
@@ -43,11 +44,13 @@ for i in tqdm(range(len(onlyfiles))):
 
     mask = np.ones(img.shape[:2], dtype="uint8") * 255
     for c in contours:
+
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
-        if w * h > areathresh * (scale_percent/100):
+
+        if w * h > areaminthresh * (scale_percent/100) and w * h < areamaxthresh * (scale_percent/100):
+
             cv2.rectangle(mask, (x, y), (x + w, y + h), (0, 0, 255), -1)
-            # print(f"x: {x}, y: {y}, w: {w}, h: {h}\n")
             cropped_box = img[y : y + h, x : x + w]
 
             cropnum += 1
@@ -80,7 +83,7 @@ args = [
     "--aspect",
     f"{math.sqrt(2)}",
     "--border",
-    "3",
+    "3"
 ]
 subprocess.run(args)
 
