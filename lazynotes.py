@@ -28,7 +28,7 @@ except:
 cropnum = 0
 
 # box area threshholds
-areaminthresh = 75_000  # best val so far:  75_000
+areaminthresh = 25_000  # best val so far:  75_000
 
 print("Capturing boxes:")
 for i in tqdm(range(len(onlyfiles))):
