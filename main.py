@@ -19,7 +19,7 @@ for i in tqdm(range(len(onlyfiles))):
     
     #print('Original Dimensions : ',img.shape)
     
-    scale_percent = 10 # percent of original size
+    scale_percent = 20 # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
@@ -45,7 +45,7 @@ for i in tqdm(range(len(onlyfiles))):
     for c in contours:
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
-        if w*h>50000/6:
+        if w*h>25000/3:
             cv2.rectangle(mask, (x, y), (x+w, y+h), (0, 0, 255), -1)
             # print(f"x: {x}, y: {y}, w: {w}, h: {h}\n")
             cropped_box = img[y:y+h, x:x+w]
