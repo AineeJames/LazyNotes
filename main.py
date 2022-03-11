@@ -61,6 +61,7 @@ for i in tqdm(range(len(onlyfiles))):
 print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
+print("Running packer...")
 args = ['python', 'packer.py', '--input_dir', 'extracted', '--width', '2500', '--aspect', f'{math.sqrt(2)}', '--border', '3']
 subprocess.run(args)
 
