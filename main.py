@@ -57,14 +57,14 @@ def processfile(filename):
             with lock:
                 cropnum += 1
 
-            # scale the cropped box back up for output
-            scale_percent = 200
-            width = int(cropped_box.shape[1] * scale_percent / 100)
-            height = int(cropped_box.shape[0] * scale_percent / 100)
-            dim = (width, height)
-            cropped_box_sized = cv2.resize(cropped_box, dim, interpolation = cv2.INTER_AREA)
+                # scale the cropped box back up for output
+                scale_percent = 200
+                width = int(cropped_box.shape[1] * scale_percent / 100)
+                height = int(cropped_box.shape[0] * scale_percent / 100)
+                dim = (width, height)
+                cropped_box_sized = cv2.resize(cropped_box, dim, interpolation = cv2.INTER_AREA)
 
-            cv2.imwrite(f"extracted/crop_{cropnum}.jpg", cropped_box_sized)
+                cv2.imwrite(f"extracted/crop_{cropnum}.jpg", cropped_box_sized)
 
     res_final = cv2.bitwise_and(img, img, mask=cv2.bitwise_not(mask))
 
