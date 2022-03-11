@@ -7,19 +7,24 @@ from os.path import isfile, join
 from difPy import dif
 import subprocess
 import math
+import threading
+import logging
+
+
 
 onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
 print(f"Number of files to capture: {len(onlyfiles)}")
 
 cropnum = 0
-areathresh = 41666
-for i in tqdm(range(len(onlyfiles))):
-
-    img = cv2.imread(f"slides/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
+areathresh = 41666 
+lock = threading.Lock()
+def processfile(filename):
+    global cropnum
+    img = cv2.imread(f"slides/{filename}", cv2.IMREAD_UNCHANGED)
 
     # print('Original Dimensions : ',img.shape)
 
-    scale_percent = 30  # percent of original size
+    scale_percent = 35  # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
@@ -49,8 +54,8 @@ for i in tqdm(range(len(onlyfiles))):
             cv2.rectangle(mask, (x, y), (x + w, y + h), (0, 0, 255), -1)
             # print(f"x: {x}, y: {y}, w: {w}, h: {h}\n")
             cropped_box = img[y : y + h, x : x + w]
-
-            cropnum += 1
+            with lock:
+                cropnum += 1
 
             # scale the cropped box back up for output
             scale_percent = 200
@@ -62,6 +67,21 @@ for i in tqdm(range(len(onlyfiles))):
             cv2.imwrite(f"extracted/crop_{cropnum}.jpg", cropped_box_sized)
 
     res_final = cv2.bitwise_and(img, img, mask=cv2.bitwise_not(mask))
+
+format = "%(asctime)s: %(message)s"
+logging.basicConfig(format=format, level=logging.INFO,datefmt="%H:%M:%S")
+threads = list()
+
+for file in onlyfiles:
+    #logging.info("Main : create and start thread") 
+    x = threading.Thread(target=processfile, args=(file,))
+    threads.append(x)
+    x.start()
+
+for index,thread in enumerate(threads):
+    #logging.info("Main    : before joining thread %d.", index)
+    thread.join()
+    #logging.info("Main    : thread %d done", index)
 
 print(f"Produced {cropnum} cropped images.")
 
