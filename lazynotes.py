@@ -36,14 +36,6 @@ for i in tqdm(range(len(onlyfiles))):
 
     img = cv2.imread(f"slides/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
 
-    scale_percent = 50  # percent of original size
-    width = int(img.shape[1] * scale_percent / 100)
-    height = int(img.shape[0] * scale_percent / 100)
-    dim = (width, height)
-
-    # resize image
-    img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
-
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     thresh_inv = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
@@ -68,7 +60,7 @@ for i in tqdm(range(len(onlyfiles))):
         # get the bounding rect
         x, y, w, h = cv2.boundingRect(c)
 
-        if w * h > areaminthresh * (scale_percent/100) and w * h < areamaxthresh * (scale_percent/100) and sides == 4:
+        if w * h > areaminthresh and w * h < areamaxthresh and sides == 4:
 
             cv2.rectangle(mask, (x, y), (x + w, y + h), (0, 0, 255), -1)
             cropped_box = img[y : y + h, x : x + w]
@@ -76,7 +68,7 @@ for i in tqdm(range(len(onlyfiles))):
             cropnum += 1
 
             # scale the cropped box back up for output
-            scale_percent = 200
+            scale_percent = 125
             width = int(cropped_box.shape[1] * scale_percent / 100)
             height = int(cropped_box.shape[0] * scale_percent / 100)
             dim = (width, height)
