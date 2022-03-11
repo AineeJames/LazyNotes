@@ -24,7 +24,7 @@ def processfile(filename):
 
     # print('Original Dimensions : ',img.shape)
 
-    scale_percent = 35  # percent of original size
+    scale_percent = 30  # percent of original size
     width = int(img.shape[1] * scale_percent / 100)
     height = int(img.shape[0] * scale_percent / 100)
     dim = (width, height)
