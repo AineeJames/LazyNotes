@@ -13,3 +13,6 @@ be transferred onto a blank A4 page.
   as main.py
 2) create an empty directory called "extracted"
 3) run main.py
+
+## Options
+--verify - Allows the user to select which images to put onto their notesheet

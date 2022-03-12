@@ -11,6 +11,13 @@ import glob
 from pathlib import Path
 from fpdf import FPDF
 import sys
+import argparse
+parser = argparse.ArgumentParser(description='Note sheet generator from boxed notes')
+parser.add_argument('--verify', help='choose what images to keep',dest='verify', action='store_true')
+parser.add_argument('--no-verify', help='choose what images to keep',dest='verify', action='store_false')
+parser.set_defaults(verify=False)
+args = parser.parse_args()
+print(args.verify)
 pdf = FPDF() # initialize pdf library
 
 def printUIinstructions():
@@ -23,7 +30,7 @@ def printUIinstructions():
 # create output path
 path = Path.cwd() / 'output' 
 try:
-    path.mkdir(parents=True, exist_ok=False)
+    path.mkdir(parents=True, exist_ok=False) 
 except FileExistsError:
     print("Output folder is already there")
 else:
@@ -191,6 +198,7 @@ args = [
 ]
 subprocess.run(args)
 
+# outputs the combined images into one pdf
 print("Creating pdf...")
 outfiles = [f for f in listdir("output") if isfile(join("output", f))]
 for file in outfiles:
