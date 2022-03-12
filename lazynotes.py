@@ -94,12 +94,36 @@ print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 # let user approve or deny image
-extractedfiles = [(f, 'x') for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", 'x')
+extractedfiles = [(f, ' ') for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
 print(f"Number of files to approve: {len(extractedfiles)}")
 print("\nInstructions:")
-print("\tUP = keep file\n\tDOWN = exclude file from note sheet")
-print("\tLEFT = go back to the previous imgage\n\tRIGHT = move to the next image\n")
-extractedfiles[0][1]
+print("\ty = keep file\n\tn = exclude file from note sheet")
+print("\t, = go back to the previous imgage\n\t. = move to the next image")
+print("\tenter = confirm selections\n")
+
+# extractedfiles[0][1] # first index, char tuple val
+currFile = 0
+while True:
+    imagepath = Path.cwd() / "extracted" / extractedfiles[currFile][0]
+    currimage = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
+    cv2.imshow(str(imagepath), currimage)
+    res = cv2.waitKey(0) & 0xFF
+    cv2.destroyAllWindows()
+    if (res == ord(',')): # left arrow key
+        if (currFile != 0):
+            currFile -= 1
+        else:
+            print("cannot go back, at first image")
+    elif (res == ord('.')): # right arrow key
+        if (currFile != len(extractedfiles) - 1):
+            currFile += 1
+        else:
+            print("cannot advance further, at last image")
+    elif (res == 13): # enter key
+        break # TODO fix this; jump to unselected
+
+
+# TODO write all y files to extracted
 
 cv2. destroyAllWindows()    
     
