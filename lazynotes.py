@@ -90,7 +90,6 @@ for i in tqdm(range(len(onlyfiles)), colour="blue"):
 
 print(f"Produced {cropnum} cropped images.")
 
-print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 # let user approve or deny image
