@@ -7,6 +7,7 @@ from os.path import isfile, join
 from difPy import dif
 import subprocess
 import math
+import glob
 
 # get a list of all the files to process
 onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
@@ -18,12 +19,9 @@ print(f"Clearing {len(extfiles)} files in the ./extracted directory...")
 for i in range(len(extfiles)):
     remove(f"extracted/{extfiles[i]}")
 
-# remove output file if it exists
-try:
-    print("Removing output file...")
-    remove("output.png")
-except:
-    print("Output file not found, continuing...")
+
+for filename in glob.glob("./output*"):
+    remove(filename) 
 
 cropnum = 0
 
