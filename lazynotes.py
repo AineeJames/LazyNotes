@@ -94,7 +94,7 @@ print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 # let user approve or deny image
-extractedfiles = [(f, "no selection") for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
+extractedfiles = [(f, "none") for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
 print(f"Number of files to approve: {len(extractedfiles)}")
 print("\nInstructions:")
 print("\ty = keep file\n\tn = exclude file from note sheet")
@@ -144,12 +144,16 @@ while True:
     elif (res == 13): # enter key
         break # TODO fix this; jump to unselected
 
+cv2. destroyAllWindows()   
+
 # TODO delete all y files to extracted
+for f in range(len(extractedfiles)):
+    imagepath = Path.cwd() / "extracted" / extractedfiles[f][0]
+    if (extractedfiles[f][1] == "exclude"):
+        print(f"Removing: {imagepath}")
+        remove(imagepath)
 
-cv2. destroyAllWindows()    
-    
 print("Running packer...")
-
 args = [
     f"{sys.executable}",
     "packer.py",
