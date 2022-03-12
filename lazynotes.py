@@ -119,7 +119,7 @@ for im in extractedfiles:
 print("Running packer...")
 
 args = [
-    f"{sys.executable()}",
+    f"{sys.executable}",
     "packer.py",
     "--input_dir",
     "extracted",
