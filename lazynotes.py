@@ -40,7 +40,7 @@ cropnum = 0
 areaminthresh = 25_000  # best val so far:  75_000
 
 print("Capturing boxes:")
-for i in tqdm(range(len(onlyfiles))):
+for i in tqdm(range(len(onlyfiles)), colour="blue"):
 
     img = cv2.imread(f"slides/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
 
@@ -96,14 +96,17 @@ extractedfiles = [f for f in listdir("extracted/") if isfile(join("extracted/", 
 print(f"Number of files to approve: {len(extractedfiles)}")
 print(f"Accept w/ y or n...")
 for im in extractedfiles:
-    cv2.imshow(im)
+    imagepath = Path.cwd() / "extracted" / im
+    print(imagepath)
+    image = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
+    cv2.imshow("y or n", image)
     res = ''
     while res != ord('y') and res != ord('n'):
-        res = cv2.waitKey(1) & 0xFF
+        res = cv2.waitKey(0) & 0xFF
         if res == ord('y'):
             continue
-        else if res == ord('n'):
-            # remove(f"extracted/{im}") 
+        elif res == ord('n'):
+            # remove(imagepath) 
             print(f"removing: {im}")
         else:
             print(f"{res} is not a valid selector")
