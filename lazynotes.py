@@ -96,13 +96,17 @@ search = dif("extracted", delete=True, silent_del=True)
 # let user approve or deny image
 extractedfiles = [(f, "none") for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
 print(f"Number of files to approve: {len(extractedfiles)}")
-print("\nInstructions:")
+print("\n\033[1;34;40mInstructions:")
 print("\ty = keep file\n\tn = exclude file from note sheet")
 print("\t, (<) = go back to the previous imgage\n\t. (>) = move to the next image")
-print("\tenter = confirm selections\n")
+print("\tq = quit selection, all files are considered\n")
+print("\tenter = confirm selections\033[1;37;40m\n")
 
 currFile = 0
 while True:
+
+    considerall = False
+
     imagepath = Path.cwd() / "extracted" / extractedfiles[currFile][0]
     currimage = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
     cv2.putText(currimage, f"Selection: {extractedfiles[currFile][1]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, 2)
@@ -151,15 +155,22 @@ while True:
                 break
         if (noneCount == 0):
             break
+    elif (res == ord('q')):
+        print(f"Considering all files for note sheet...")
+        considerall = True
+        break
+    else:
+        print(f"Input not recognized, try again...")
+
             
 cv2. destroyAllWindows()   
 
-# TODO delete all y files to extracted
-for f in range(len(extractedfiles)):
-    imagepath = Path.cwd() / "extracted" / extractedfiles[f][0]
-    if (extractedfiles[f][1] == "exclude"):
-        print(f"Removing: {imagepath}")
-        remove(imagepath)
+if (considerall != True):
+    for f in range(len(extractedfiles)):
+        imagepath = Path.cwd() / "extracted" / extractedfiles[f][0]
+        if (extractedfiles[f][1] == "exclude"):
+            print(f"Removing: {imagepath}")
+            remove(imagepath)
 
 print("Running packer...")
 args = [
