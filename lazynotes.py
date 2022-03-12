@@ -97,7 +97,7 @@ for i in tqdm(range(len(onlyfiles)), colour="blue"):
 
 print(f"Produced {cropnum} cropped images.")
 
-search = dif("extracted", delete=True, silent_del=True)
+search = dif("extracted", delete=True, silent_del=True, show_output=False)
 
 # let user approve or deny image
 extractedfiles = [(f, "none") for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
