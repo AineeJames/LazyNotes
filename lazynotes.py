@@ -137,7 +137,8 @@ subprocess.run(args)
 
 outfiles = [f for f in listdir("output") if isfile(join("output", f))]
 for file in outfiles:
+    filepath = Path.cwd() / "output" / file
     pdf.add_page()
-    pdf.image(file,0,0,210,297)
+    pdf.image(filepath,0,0,210,297)
 pdfpath = Path.cwd() / "output" / "output.pdf"
 pdf.output(pdfpath, "F")
