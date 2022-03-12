@@ -13,6 +13,13 @@ from fpdf import FPDF
 import sys
 pdf = FPDF() # initialize pdf library
 
+def printUIinstructions():
+    print("\n\033[1;34;40mInstructions:")
+    print("\ty = keep file\n\tn = exclude file from note sheet")
+    print("\t, (<) = go back to the previous imgage\n\t. (>) = move to the next image")
+    print("\tq = quit selection, all files are considered\n")
+    print("\tenter = confirm selections\033[1;37;40m\n")
+
 # create output path
 path = Path.cwd() / 'output' 
 try:
@@ -95,11 +102,7 @@ search = dif("extracted", delete=True, silent_del=True)
 # let user approve or deny image
 extractedfiles = [(f, "none") for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
 print(f"Number of files to approve: {len(extractedfiles)}")
-print("\n\033[1;34;40mInstructions:")
-print("\ty = keep file\n\tn = exclude file from note sheet")
-print("\t, (<) = go back to the previous imgage\n\t. (>) = move to the next image")
-print("\tq = quit selection, all files are considered\n")
-print("\tenter = confirm selections\033[1;37;40m\n")
+printUIinstructions()
 
 currFile = 0
 while True:
@@ -160,6 +163,7 @@ while True:
         break
     else:
         print(f"Input not recognized, try again...")
+        printUIinstructions()
 
             
 cv2. destroyAllWindows()   
@@ -168,7 +172,6 @@ if (considerall != True):
     for f in range(len(extractedfiles)):
         imagepath = Path.cwd() / "extracted" / extractedfiles[f][0]
         if (extractedfiles[f][1] == "exclude"):
-            print(f"Removing: {imagepath}")
             remove(imagepath)
 
 print("Running packer...")
