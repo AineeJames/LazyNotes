@@ -13,13 +13,14 @@ from fpdf import FPDF
 import sys
 pdf = FPDF() # initialize pdf library
 
+# create output path
 path = Path.cwd() / 'output' 
 try:
     path.mkdir(parents=True, exist_ok=False)
 except FileExistsError:
-    print("Folder is already there")
+    print("Output folder is already there")
 else:
-    print("Folder was created")
+    print("Output folder was created")
 
 # get a list of all the files to process
 onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
@@ -132,11 +133,11 @@ args = [
 ]
 subprocess.run(args)
 
-
+print("Creating pdf...")
 outfiles = [f for f in listdir("output") if isfile(join("output", f))]
 for file in outfiles:
     filepath = Path.cwd() / "output" / file
     pdf.add_page()
-    pdf.image(filepath,0,0,210,297)
+    pdf.image(str(filepath), 0, 0, 210, 297)
 pdfpath = Path.cwd() / "output" / "output.pdf"
 pdf.output(pdfpath, "F")
