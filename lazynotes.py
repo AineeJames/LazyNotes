@@ -10,6 +10,7 @@ import math
 import glob
 from pathlib import Path
 from fpdf import FPDF
+import sys
 pdf = FPDF() # initialize pdf library
 
 path = Path.cwd() / 'output' 
@@ -91,6 +92,8 @@ print(f"Produced {cropnum} cropped images.")
 print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
+print("Would you like to")
+
 # let user approve or deny image
 extractedfiles = [f for f in listdir("extracted/") if isfile(join("extracted/", f))]
 print(f"Number of files to approve: {len(extractedfiles)}")
@@ -106,8 +109,8 @@ for im in extractedfiles:
         if res == ord('y'):
             continue
         elif res == ord('n'):
-            # remove(imagepath) 
-            print(f"removing: {im}")
+            remove(imagepath) 
+            print(f"Removed: {imagepath}")
         else:
             print(f"{res} is not a valid selector")
 
@@ -116,7 +119,7 @@ for im in extractedfiles:
 print("Running packer...")
 
 args = [
-    "python3",
+    f"{sys.executable()}",
     "packer.py",
     "--input_dir",
     "extracted",
