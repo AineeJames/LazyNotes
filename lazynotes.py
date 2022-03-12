@@ -142,7 +142,17 @@ while True:
             print("reached the end, hit enter to generate note sheet")
 
     elif (res == 13): # enter key
-        break # TODO fix this; jump to unselected
+        noneCount = 0
+        for f in range(len(extractedfiles)):
+            imagepath = Path.cwd() / "extracted" / extractedfiles[f][0]
+            if (extractedfiles[f][1] == "none"):
+                noneCount += 1
+                print(f"Provide a selection for {imagepath}")
+                currFile = f
+                break
+        if (noneCount == 0):
+            break
+            
 
 cv2. destroyAllWindows()   
 
