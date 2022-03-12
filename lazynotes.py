@@ -101,7 +101,6 @@ print("\ty = keep file\n\tn = exclude file from note sheet")
 print("\t, (<) = go back to the previous imgage\n\t. (>) = move to the next image")
 print("\tenter = confirm selections\n")
 
-# extractedfiles[0][1] # first index, char tuple val
 currFile = 0
 while True:
     imagepath = Path.cwd() / "extracted" / extractedfiles[currFile][0]
@@ -153,7 +152,6 @@ while True:
         if (noneCount == 0):
             break
             
-
 cv2. destroyAllWindows()   
 
 # TODO delete all y files to extracted
