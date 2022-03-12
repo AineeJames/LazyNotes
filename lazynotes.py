@@ -11,11 +11,18 @@ import glob
 from pathlib import Path
 from fpdf import FPDF
 import sys
+import argparse
+parser = argparse.ArgumentParser(description='Note sheet generator from boxed notes')
+parser.add_argument('--verify', help='choose what images to keep',dest='verify', action='store_true')
+parser.add_argument('--no-verify', help='choose what images to keep',dest='verify', action='store_false')
+parser.set_defaults(verify=False)
+args = parser.parse_args()
+print(args.verify)
 pdf = FPDF() # initialize pdf library
 
 path = Path.cwd() / 'output' 
 try:
-    path.mkdir(parents=True, exist_ok=False)
+    path.mkdir(parents=True, exist_ok=False) 
 except FileExistsError:
     print("Folder is already there")
 else:
@@ -93,26 +100,27 @@ print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 # let user approve or deny image
-extractedfiles = [f for f in listdir("extracted/") if isfile(join("extracted/", f))]
-print(f"Number of files to approve: {len(extractedfiles)}")
-print(f"Accept w/ y or n...")
-for im in extractedfiles:
-    imagepath = Path.cwd() / "extracted" / im
-    print(imagepath)
-    image = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
-    cv2.imshow("y or n", image)
-    res = ''
-    while res != ord('y') and res != ord('n'):
-        res = cv2.waitKey(0) & 0xFF
-        if res == ord('y'):
-            continue
-        elif res == ord('n'):
-            remove(imagepath) 
-            print(f"Removed: {imagepath}")
-        else:
-            print(f"{res} is not a valid selector")
+if args.verify:
+    extractedfiles = [f for f in listdir("extracted/") if isfile(join("extracted/", f))]
+    print(f"Number of files to approve: {len(extractedfiles)}")
+    print(f"Accept w/ y or n...")
+    for im in extractedfiles:
+        imagepath = Path.cwd() / "extracted" / im
+        print(imagepath)
+        image = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
+        cv2.imshow("y or n", image)
+        res = ''
+        while res != ord('y') and res != ord('n'):
+            res = cv2.waitKey(0) & 0xFF
+            if res == ord('y'):
+                continue
+            elif res == ord('n'):
+                remove(imagepath) 
+                print(f"Removed: {imagepath}")
+            else:
+                print(f"{res} is not a valid selector")
 
-cv2. destroyAllWindows()    
+cv2.destroyAllWindows()    
     
 print("Running packer...")
 
@@ -133,6 +141,7 @@ args = [
 subprocess.run(args)
 
 
+# outputs the combined images into one pdf
 outfiles = [f for f in listdir("output") if isfile(join("output", f))]
 for file in outfiles:
     filepath = Path.cwd() / "output" / file
