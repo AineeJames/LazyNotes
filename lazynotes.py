@@ -20,7 +20,7 @@ for i in range(len(extfiles)):
     remove(f"extracted/{extfiles[i]}")
 
 
-for filename in glob.glob("./output*"):
+for filename in glob.glob("./out/output*"):
     remove(filename) 
 
 cropnum = 0
