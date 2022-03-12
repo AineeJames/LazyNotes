@@ -92,8 +92,6 @@ print(f"Produced {cropnum} cropped images.")
 print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
-print("Would you like to")
-
 # let user approve or deny image
 extractedfiles = [f for f in listdir("extracted/") if isfile(join("extracted/", f))]
 print(f"Number of files to approve: {len(extractedfiles)}")
@@ -114,7 +112,7 @@ for im in extractedfiles:
         else:
             print(f"{res} is not a valid selector")
 
-    
+cv2. destroyAllWindows()    
     
 print("Running packer...")
 
