@@ -18,7 +18,7 @@ args = parser.parse_args()
 files = sum([glob.glob(os.path.join(args.input_dir, '*.' + e)) for e in ['jpg', 'jpeg', 'png']], [])
 print('found %d files in %s' % (len(files), args.input_dir))
 print('getting images sizes...')
-for count in range(4):
+for count in range(100):
     sizes = [(im_file, cv2.imread(im_file).shape) for im_file in files]
     # NOTE: you could pick a different packing algo by setting pack_algo=..., e.g. pack_algo=rectpack.SkylineBlWm
     packer = newPacker(rotation=False)
