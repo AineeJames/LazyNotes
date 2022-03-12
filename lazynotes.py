@@ -94,24 +94,12 @@ print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 # let user approve or deny image
-extractedfiles = [f for f in listdir("extracted/") if isfile(join("extracted/", f))]
+extractedfiles = [(f, 'x') for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", 'x')
 print(f"Number of files to approve: {len(extractedfiles)}")
-print(f"Accept w/ y or n...")
-for im in extractedfiles:
-    imagepath = Path.cwd() / "extracted" / im
-    print(imagepath)
-    image = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
-    cv2.imshow("y or n", image)
-    res = ''
-    while res != ord('y') and res != ord('n'):
-        res = cv2.waitKey(0) & 0xFF
-        if res == ord('y'):
-            continue
-        elif res == ord('n'):
-            remove(imagepath) 
-            print(f"Removed: {imagepath}")
-        else:
-            print(f"{res} is not a valid selector")
+print("\nInstructions:")
+print("\tUP = keep file\n\tDOWN = exclude file from note sheet")
+print("\tLEFT = go back to the previous imgage\n\tRIGHT = move to the next image\n")
+extractedfiles[0][1]
 
 cv2. destroyAllWindows()    
     
