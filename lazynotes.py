@@ -94,11 +94,11 @@ print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
 # let user approve or deny image
-extractedfiles = [(f, ' ') for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
+extractedfiles = [(f, "no selection") for f in listdir("extracted/") if isfile(join("extracted/", f))] # ("file", ' ')
 print(f"Number of files to approve: {len(extractedfiles)}")
 print("\nInstructions:")
 print("\ty = keep file\n\tn = exclude file from note sheet")
-print("\t, = go back to the previous imgage\n\t. = move to the next image")
+print("\t, (<) = go back to the previous imgage\n\t. (>) = move to the next image")
 print("\tenter = confirm selections\n")
 
 # extractedfiles[0][1] # first index, char tuple val
@@ -106,24 +106,45 @@ currFile = 0
 while True:
     imagepath = Path.cwd() / "extracted" / extractedfiles[currFile][0]
     currimage = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
+    cv2.putText(currimage, f"Selection: {extractedfiles[currFile][1]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, 2)
     cv2.imshow(str(imagepath), currimage)
     res = cv2.waitKey(0) & 0xFF
     cv2.destroyAllWindows()
+
     if (res == ord(',')): # left arrow key
         if (currFile != 0):
             currFile -= 1
         else:
             print("cannot go back, at first image")
+
     elif (res == ord('.')): # right arrow key
         if (currFile != len(extractedfiles) - 1):
             currFile += 1
         else:
-            print("cannot advance further, at last image")
+            print("reached the end, hit enter to generate note sheet")
+
+    elif (res == ord('y')):
+        tuplelist = list(extractedfiles[currFile])
+        tuplelist[1] = "keep"
+        extractedfiles[currFile] = tuple(tuplelist)
+        if (currFile != len(extractedfiles) - 1):
+            currFile += 1
+        else:
+            print("reached the end, hit enter to generate note sheet")
+
+    elif (res == ord('n')):
+        tuplelist = list(extractedfiles[currFile])
+        tuplelist[1] = "exclude"
+        extractedfiles[currFile] = tuple(tuplelist)
+        if (currFile != len(extractedfiles) - 1):
+            currFile += 1
+        else:
+            print("reached the end, hit enter to generate note sheet")
+
     elif (res == 13): # enter key
         break # TODO fix this; jump to unselected
 
-
-# TODO write all y files to extracted
+# TODO delete all y files to extracted
 
 cv2. destroyAllWindows()    
     
