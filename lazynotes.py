@@ -89,6 +89,25 @@ print(f"Produced {cropnum} cropped images.")
 print("Deleting duplicate files, please wait...")
 search = dif("extracted", delete=True, silent_del=True)
 
+# let user approve or deny image
+extractedfiles = [f for f in listdir("extracted/") if isfile(join("extracted/", f))]
+print(f"Number of files to approve: {len(extractedfiles)}")
+print(f"Accept w/ y or n...")
+for im in extractedfiles:
+    cv2.imshow(im)
+    res = ''
+    while res != ord('y') and res != ord('n'):
+        res = cv2.waitKey(1) & 0xFF
+        if res == ord('y'):
+            continue
+        else if res == ord('n'):
+            # remove(f"extracted/{im}") 
+            print(f"removing: {im}")
+        else:
+            print(f"{res} is not a valid selector")
+
+    
+    
 print("Running packer...")
 
 args = [
