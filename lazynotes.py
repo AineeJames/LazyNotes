@@ -9,6 +9,8 @@ import subprocess
 import math
 import glob
 from pathlib import Path
+from fpdf import FPDF
+pdf = FPDF() # initialize pdf library
 
 path = Path.cwd() / 'output' 
 try:
@@ -106,3 +108,11 @@ args = [
     "output/output.png"
 ]
 subprocess.run(args)
+
+
+outfiles = [f for f in listdir("output") if isfile(join("output", f))]
+for file in outfiles:
+    pdf.add_page()
+    pdf.image(file,0,0,210,297)
+pdfpath = Path.cwd() / "output" / "output.pdf"
+pdf.output(pdfpath, "F")
