@@ -101,6 +101,8 @@ args = [
     "--aspect",
     f"{math.sqrt(2)}",
     "--border",
-    "3"
+    "3",
+    "--output",
+    "output/output.png"
 ]
 subprocess.run(args)
