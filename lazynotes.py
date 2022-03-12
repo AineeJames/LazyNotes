@@ -8,6 +8,15 @@ from difPy import dif
 import subprocess
 import math
 import glob
+from pathlib import Path
+
+path = Path.cwd() / 'output' 
+try:
+    path.mkdir(parents=True, exist_ok=False)
+except FileExistsError:
+    print("Folder is already there")
+else:
+    print("Folder was created")
 
 # get a list of all the files to process
 onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
