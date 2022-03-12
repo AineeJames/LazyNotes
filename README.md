@@ -2,8 +2,8 @@
 
 ## Description:
 LazyNotes utilizes opencv, packer, and other tools to create note sheets
-for you. By filling a directory called "slides" with images, boxed notes will
-be transferred onto a blank A4 page.
+for you. By filling a directory called "slides" with images, Notes in rectangular or square boxes
+will be put onto an A4 page. The user can select which boxes to include and exclude as well.
 
 ## Example Output:
 <img src="imgs/exampleout.png" alt="example output" width="500"/>
