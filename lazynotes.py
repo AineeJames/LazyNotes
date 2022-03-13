@@ -3,7 +3,7 @@ import time  # for framerate
 import numpy as np
 from tqdm import tqdm
 from os import listdir, remove
-from os.path import isfile, join
+from os.path import isfile, join, isdir
 from difPy import dif
 import subprocess
 import math
@@ -17,7 +17,6 @@ parser.add_argument('--verify', help='choose what images to keep',dest='verify',
 parser.add_argument('--no-verify', help='choose what images to keep',dest='verify', action='store_false')
 parser.set_defaults(verify=False)
 args = parser.parse_args()
-print(args.verify)
 pdf = FPDF() # initialize pdf library
 
 def printUIinstructions():
@@ -32,12 +31,22 @@ path = Path.cwd() / 'output'
 try:
     path.mkdir(parents=True, exist_ok=False) 
 except FileExistsError:
-    print("Output folder is already there")
+    print("Output folder exists")
 else:
     print("Output folder was created")
 
+# ask for target directory to process
+while True:
+    targetDir = input("\033[1;34;40mPlease enter the directory you wish to process: \033[1;37;40m")
+    destPath = Path.cwd() / targetDir
+    isValid = isdir(destPath)
+    if isValid == True:
+        break
+    else:
+        print(f"{destPath} is not a valid directory") 
+
 # get a list of all the files to process
-onlyfiles = [f for f in listdir("slides") if isfile(join("slides", f))]
+onlyfiles = [f for f in listdir(str(targetDir)) if isfile(join(str(targetDir), f))]
 print(f"Number of files to capture: {len(onlyfiles)}")
 
 # clear the extracted directory
@@ -58,7 +67,7 @@ areaminthresh = 25_000  # best val so far:  75_000
 print("Capturing boxes:")
 for i in tqdm(range(len(onlyfiles)), colour="blue"):
 
-    img = cv2.imread(f"slides/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
+    img = cv2.imread(f"{targetDir}/{onlyfiles[i]}", cv2.IMREAD_UNCHANGED)
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -118,7 +127,14 @@ while True:
 
     imagepath = Path.cwd() / "extracted" / extractedfiles[currFile][0]
     currimage = cv2.imread(str(imagepath), cv2.IMREAD_UNCHANGED)
-    cv2.putText(currimage, f"Selection: {extractedfiles[currFile][1]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, 2)
+
+    if (extractedfiles[currFile][1] == "none"):
+        cv2.putText(currimage, f"Selection: {extractedfiles[currFile][1]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2, 2)
+    elif (extractedfiles[currFile][1] == "keep"):
+        cv2.putText(currimage, f"Selection: {extractedfiles[currFile][1]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (86, 255, 86), 2, 2)
+    elif (extractedfiles[currFile][1] == "exclude"):
+        cv2.putText(currimage, f"Selection: {extractedfiles[currFile][1]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (86, 86, 255), 2, 2)
+
     cv2.imshow(str(imagepath), currimage)
     res = cv2.waitKey(0) & 0xFF
     cv2.destroyAllWindows()
