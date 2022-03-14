@@ -13,12 +13,20 @@ from fpdf import FPDF
 import sys
 import tkinter as tk
 import PySimpleGUI as sg
+import fitz
 
-sg.theme('DarkGrey3')
+def pdftoimg(pdfpath):
+    doc = fitz.open(pdfpath)
+    for page in doc:
+        pix = page.get_pixmap()
+        pix.save("page-%i.png" % page.number)
+
+sg.theme('Black')
 
 # All the stuff inside your window.
 layout = [  [sg.Text("Choose a file..."), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),), key = '-INPDF-')],
-            [sg.Button('Confirm Selection', key = '-CONFIRMPDF-')] ]
+            [sg.Button('Confirm Selection', key = '-CONFIRMPDF-')],
+            [sg.Output(size=(100,10), key='-PRGMOUT-')]  ]
 
 # Create the Window
 window = sg.Window('LazyNotes', layout, element_justification='c')
@@ -31,8 +39,10 @@ while True:
     if event == sg.WIN_CLOSED: # if user closes window or clicks cancel
         break
 
-    if event == '-CONFIRMPDF-':
-        pdffilepath = values['-INPDF-']  
-        print(f"chosen: {pdffilepath}")
+    if event == '-CONFIRMPDF-' and values['-INPDF-'] != "":  
+        print(f"Converting {values['-INPDF-']} to images...")
+        pdftoimg(values['-INPDF-'])
+    elif event == '-CONFIRMPDF-' and values['-INPDF-'] == "":
+        print("Please select the PDF you wish to process...")
 
 window.close()
