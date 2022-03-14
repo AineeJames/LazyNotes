@@ -14,21 +14,25 @@ import sys
 import tkinter as tk
 import PySimpleGUI as sg
 
-sg.theme('DarkAmber')
+sg.theme('DarkGrey3')
 
 # All the stuff inside your window.
-layout = [  [sg.Text("Choose a file: "), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),))],
-            [sg.Text('Enter something on Row 2'), sg.InputText()],
-            [sg.Button('Ok'), sg.Button('Cancel')] ]
+layout = [  [sg.Text("Choose a file..."), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),), key = '-INPDF-')],
+            [sg.Button('Confirm Selection', key = '-CONFIRMPDF-')] ]
 
 # Create the Window
-window = sg.Window('LazyNotes', layout)
-
+window = sg.Window('LazyNotes', layout, element_justification='c')
+ 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
-    event, values = window.read()
-    if event == sg.WIN_CLOSED or event == 'Cancel': # if user closes window or clicks cancel
+
+    event, values = window.Read()
+
+    if event == sg.WIN_CLOSED: # if user closes window or clicks cancel
         break
-    print('You entered ', values[0])
+
+    if event == '-CONFIRMPDF-':
+        pdffilepath = values['-INPDF-']  
+        print(f"chosen: {pdffilepath}")
 
 window.close()
