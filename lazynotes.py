@@ -14,22 +14,32 @@ import sys
 import tkinter as tk
 import PySimpleGUI as sg
 import fitz
+import logging
 
 def pdftoimg(pdfpath):
     doc = fitz.open(pdfpath)
+    outputpath = Path.cwd() / 'pdftoimg'
+    try:
+        outputpath.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        pass
+    for f in listdir(outputpath):
+        remove(join(outputpath, f))
     for page in doc:
         pix = page.get_pixmap()
-        pix.save("page-%i.png" % page.number)
+        pix.save(outputpath / f"page-{page.number}.png")
 
 sg.theme('Black')
 
 # All the stuff inside your window.
 layout = [  [sg.Text("Choose a file..."), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),), key = '-INPDF-')],
             [sg.Button('Confirm Selection', key = '-CONFIRMPDF-')],
-            [sg.Output(size=(100,10), key='-PRGMOUT-')]  ]
+            [sg.MLine(key='-ML-'+ sg.WRITE_ONLY_KEY, size=(100, 8))]  ]
 
 # Create the Window
 window = sg.Window('LazyNotes', layout, element_justification='c')
+
+# window['-ML-'+sg.WRITE_ONLY_KEY].print('\n', end='')
  
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -40,9 +50,9 @@ while True:
         break
 
     if event == '-CONFIRMPDF-' and values['-INPDF-'] != "":  
-        print(f"Converting {values['-INPDF-']} to images...")
+        window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Converting {values['-INPDF-']} to images...")
         pdftoimg(values['-INPDF-'])
     elif event == '-CONFIRMPDF-' and values['-INPDF-'] == "":
-        print("Please select the PDF you wish to process...")
+        window['-ML-'+sg.WRITE_ONLY_KEY].print("Please select the PDF you wish to process...", text_color='red')
 
 window.close()
