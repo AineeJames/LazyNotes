@@ -135,6 +135,14 @@ while True:
     elif (extractedfiles[currFile][1] == "exclude"):
         cv2.putText(currimage, f"Selection: {extractedfiles[currFile][1]}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (86, 86, 255), 2, 2)
 
+    # better size the image to show
+    (h, w) = currimage.shape[:2]
+    width = 750
+    r = width / float(w)
+    dim = (width, int(h * r))
+    currimage = cv2.resize(currimage, dim, interpolation = cv2.INTER_AREA)
+
+    # show the scaled image and wait for user input
     cv2.imshow(str(imagepath), currimage)
     res = cv2.waitKey(0) & 0xFF
     cv2.destroyAllWindows()
