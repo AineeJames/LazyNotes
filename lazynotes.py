@@ -15,6 +15,7 @@ import tkinter as tk
 import PySimpleGUI as sg
 import fitz
 import logging
+import threading
 
 def pdftoimg(pdfpath):
     doc = fitz.open(pdfpath)
@@ -28,6 +29,7 @@ def pdftoimg(pdfpath):
     for page in doc:
         pix = page.get_pixmap()
         pix.save(outputpath / f"page-{page.number}.png")
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("Completed conversion...", text_color='green')
 
 sg.theme('Black')
 
@@ -50,8 +52,8 @@ while True:
         break
 
     if event == '-CONFIRMPDF-' and values['-INPDF-'] != "":  
-        window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Converting {values['-INPDF-']} to images...")
-        pdftoimg(values['-INPDF-'])
+        window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Converting {values['-INPDF-']} to images...", text_color='green')
+        threading.Thread(target=pdftoimg, args=(values['-INPDF-'],), daemon=True).start()
     elif event == '-CONFIRMPDF-' and values['-INPDF-'] == "":
         window['-ML-'+sg.WRITE_ONLY_KEY].print("Please select the PDF you wish to process...", text_color='red')
 
