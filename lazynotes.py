@@ -16,6 +16,8 @@ import PySimpleGUI as sg
 import fitz
 import logging
 import threading
+import io
+from PIL import Image
 
 def pdftoimg(pdfpath):
     zoom_x = 2.0  # horizontal zoom
@@ -31,11 +33,14 @@ def pdftoimg(pdfpath):
         remove(join(outputpath, f))
     for page in doc:
         window['-PROG-'].update(page.number+1, len(doc))
+        window['-BARPERCENT-'].update(f"{int(page.number/len(doc) * 100)}%")
         pix = page.get_pixmap(matrix=mat)
         pix.save(outputpath / f"page-{page.number}.png")
     window['-PROG-'].update(0, 1)
+    window['-BARPERCENT-'].update("0%")
     window['-ML-'+sg.WRITE_ONLY_KEY].print("Completed conversion...")
     imgcrop(outputpath)
+    window.write_event_value('-THREAD DONE-', 'done')
 
 def imgcrop(imgpath):
     extractedpath = Path.cwd() / 'extracted' 
@@ -58,6 +63,7 @@ def imgcrop(imgpath):
     for i in range(len(onlyfiles)):
 
         window['-PROG-'].update(i+1, len(onlyfiles))
+        window['-BARPERCENT-'].update(f"{int(i/len(onlyfiles) * 100)}%")
 
         # read img path and process the image
         currimgpath = imgpath / onlyfiles[i]
@@ -93,15 +99,39 @@ def imgcrop(imgpath):
                 dim = (width, height)
                 cropped_box_sized = cv2.resize(cropped_box, dim, interpolation = cv2.INTER_AREA)
 
-                extractedimgpath = Path.cwd() / 'extracted' / f"crop_{cropnum}.jpg"
+                extractedimgpath = Path.cwd() / 'extracted' / f"crop_{cropnum}.png"
                 cv2.imwrite(str(extractedimgpath), cropped_box_sized)
 
     window['-PROG-'].update(0, 1)
+    window['-BARPERCENT-'].update("0%")
 
     window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Produced {cropnum} boxes...")
     window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Removing duplicate boxes...")
     search = dif(str(extractedpath), delete=True, silent_del=True, show_output=False)
     window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Done removing duplicates...")
+
+def printinstructs():
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\nInstructions:", text_color='lightblue')
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\ty = keep file\n\tn = exclude file from note sheet", text_color='lightblue')
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\t, (<) = go back to the previous imgage\n\t. (>) = move to the next image", text_color='lightblue')
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tq = quit selection, all files are considered", text_color='lightblue')
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tenter = confirm selections", text_color='lightblue')
+
+def getextractednum():
+    extractedpath = Path.cwd() / 'extracted' 
+    num = len(listdir(extractedpath))
+    return num
+
+def handleselection():
+    while True:
+        croppath = Path.cwd() / "extracted" / f"crop_{currfilenum}.png"
+        image = Image.open(str(croppath))
+        image.thumbnail((700, 700))
+        bio = io.BytesIO()
+        image.save(bio, format="PNG")
+        window["-BOXIMAGE-"].update(data=bio.getvalue())
+
+currfilenum = 1
 
 # DarkGrey14
 sg.theme('DarkGrey14')
@@ -111,10 +141,11 @@ layout = [  [sg.Text("LazyNotes Notesheet Generator", font = ("Bahnschrift", 30)
             [sg.Text("Choose a *.pdf file to process...", font = ("Bahnschrift", 12)), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),), key = '-INPDF-', font = ("Bahnschrift", 12))],
             [sg.Button('Confirm Selection', key = '-CONFIRMPDF-', font = ("Bahnschrift", 12))],
             [sg.MLine(key='-ML-'+ sg.WRITE_ONLY_KEY, size=(100, 8), font = ("Bahnschrift", 10))], 
-            [sg.ProgressBar(1, orientation='h', size=(20,20), key='-PROG-')]  ]
+            [sg.ProgressBar(1, orientation='h', size=(20,20), key='-PROG-'), sg.Text("0%", key = "-BARPERCENT-", font = ("Bahnschrift", 10))],
+            [sg.Image('', size=(0,0), key = "-BOXIMAGE-")]  ]
 
 # Create the Window
-window = sg.Window('LazyNotes', layout, element_justification='c', return_keyboard_events=True)
+window = sg.Window('LazyNotes', layout, element_justification='c', return_keyboard_events=True, use_default_focus=False)
 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
@@ -125,12 +156,32 @@ while True:
         break
 
     if len(event) == 1: # keyboard input
-        window['-ML-'+sg.WRITE_ONLY_KEY].print('%s - %s' % (event, ord(event)))
+        numoffiles = getextractednum()
+        if (event == 'y'):
+            fileselectlist[currfilenum - 1] = 'y'
+            if (currfilenum < numoffiles):
+                currfilenum += 1
+        elif (event == 'n'):
+            fileselectlist[currfilenum - 1] = 'n'
+            if (currfilenum < numoffiles):
+                currfilenum += 1
+
+    if event is not None: # handle arrow keys
+        numoffiles = getextractednum()
+        if (event == "Right:39" and currfilenum < numoffiles):
+            currfilenum += 1
+        elif (event == "Left:37" and currfilenum > 1):
+            currfilenum -= 1
 
     if event == '-CONFIRMPDF-' and values['-INPDF-'] != "":  
         window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Converting {values['-INPDF-']} to images...")
         threading.Thread(target=pdftoimg, args=(values['-INPDF-'],), daemon=True).start()
     elif event == '-CONFIRMPDF-' and values['-INPDF-'] == "":
         window['-ML-'+sg.WRITE_ONLY_KEY].print("Please select the PDF you wish to process...", text_color='red')
+
+    if event == '-THREAD DONE-':
+        printinstructs()
+        fileselectlist = [None] * getextractednum()
+        threading.Thread(target=handleselection, daemon=True).start()
 
 window.close()
