@@ -124,15 +124,18 @@ def getextractednum():
 
 def handleselection():
     while True:
-        # below is bad; e.g) crop_1.png, crop_2.png, crop_4.png will cause crash. File may be removed because duplicateS
-        croppath = Path.cwd() / "extracted" / f"crop_{currfilenum}.png"
-        image = Image.open(str(croppath))
+        # below is bad; e.g) crop_1.png, crop_2.png, crop_4.png will cause crash. File may be removed because duplicates
+        extpath = Path.cwd() / 'extracted'
+        extfiles = [f for f in listdir(str(extpath)) if isfile(join(str(extpath), f))]
+        # croppath = Path.cwd() / "extracted" / f"crop_{currfilenum}.png"
+        box_path = Path.cwd() / 'extracted' / extfiles[currfilenum]
+        image = Image.open(box_path)
         image.thumbnail((700, 700))
         bio = io.BytesIO()
         image.save(bio, format="PNG")
         window["-BOXIMAGE-"].update(data=bio.getvalue())
 
-currfilenum = 1
+currfilenum = 0
 
 # DarkGrey14
 sg.theme('DarkGrey14')
@@ -160,18 +163,18 @@ while True:
         numoffiles = getextractednum()
         if (event == 'y'):
             fileselectlist[currfilenum - 1] = 'y'
-            if (currfilenum < numoffiles):
+            if (currfilenum < numoffiles - 1):
                 currfilenum += 1
         elif (event == 'n'):
             fileselectlist[currfilenum - 1] = 'n'
-            if (currfilenum < numoffiles):
+            if (currfilenum < numoffiles - 1):
                 currfilenum += 1
 
     if event is not None: # handle arrow keys
         numoffiles = getextractednum()
-        if (event == "Right:39" and currfilenum < numoffiles):
+        if (event == "Right:39" and currfilenum < numoffiles - 1):
             currfilenum += 1
-        elif (event == "Left:37" and currfilenum > 1):
+        elif (event == "Left:37" and currfilenum > 0):
             currfilenum -= 1
 
     if event == '-CONFIRMPDF-' and values['-INPDF-'] != "":  
