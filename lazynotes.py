@@ -124,10 +124,8 @@ def getextractednum():
 
 def handleselection():
     while True:
-        # below is bad; e.g) crop_1.png, crop_2.png, crop_4.png will cause crash. File may be removed because duplicates
         extpath = Path.cwd() / 'extracted'
         extfiles = [f for f in listdir(str(extpath)) if isfile(join(str(extpath), f))]
-        # croppath = Path.cwd() / "extracted" / f"crop_{currfilenum}.png"
         box_path = Path.cwd() / 'extracted' / extfiles[currfilenum]
         image = Image.open(box_path)
         image.thumbnail((700, 700))
