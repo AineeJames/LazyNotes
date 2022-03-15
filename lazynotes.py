@@ -30,8 +30,10 @@ def pdftoimg(pdfpath):
     for f in listdir(outputpath):
         remove(join(outputpath, f))
     for page in doc:
+        window['-PROG-'].update(page.number+1, len(doc))
         pix = page.get_pixmap(matrix=mat)
         pix.save(outputpath / f"page-{page.number}.png")
+    window['-PROG-'].update(0, 1)
     window['-ML-'+sg.WRITE_ONLY_KEY].print("Completed conversion...")
     imgcrop(outputpath)
 
@@ -48,12 +50,14 @@ def imgcrop(imgpath):
 
     # get a list of all the files to process
     onlyfiles = [f for f in listdir(imgpath) if isfile(join(imgpath, f))]
-    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Finding boxes in {len(onlyfiles)} files...")
+    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Searching for boxes in {len(onlyfiles)} files...")
 
     cropnum = 0
     # box area threshholds
     areaminthresh = 25_000  # best val so far:  25_000
     for i in range(len(onlyfiles)):
+
+        window['-PROG-'].update(i+1, len(onlyfiles))
 
         # read img path and process the image
         currimgpath = imgpath / onlyfiles[i]
@@ -92,18 +96,22 @@ def imgcrop(imgpath):
                 extractedimgpath = Path.cwd() / 'extracted' / f"crop_{cropnum}.jpg"
                 cv2.imwrite(str(extractedimgpath), cropped_box_sized)
 
+    window['-PROG-'].update(0, 1)
+
     window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Produced {cropnum} boxes...")
     window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Removing duplicate boxes...")
     search = dif(str(extractedpath), delete=True, silent_del=True, show_output=False)
+    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Done removing duplicates...")
 
 # DarkGrey14
 sg.theme('DarkGrey14')
 
 # All the stuff inside your window.
-layout = [  [sg.Text("Choose a *.pdf file to process...", font = ("Bahnschrift", 12)), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),), key = '-INPDF-', font = ("Bahnschrift", 12))],
+layout = [  [sg.Text("LazyNotes Notesheet Generator", font = ("Bahnschrift", 30))],
+            [sg.Text("Choose a *.pdf file to process...", font = ("Bahnschrift", 12)), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),), key = '-INPDF-', font = ("Bahnschrift", 12))],
             [sg.Button('Confirm Selection', key = '-CONFIRMPDF-', font = ("Bahnschrift", 12))],
             [sg.MLine(key='-ML-'+ sg.WRITE_ONLY_KEY, size=(100, 8), font = ("Bahnschrift", 10))], 
-            [sg.Image(filename='', key='-BOX-')] ]
+            [sg.ProgressBar(1, orientation='h', size=(20,20), key='-PROG-')]  ]
 
 # Create the Window
 window = sg.Window('LazyNotes', layout, element_justification='c', return_keyboard_events=True)
