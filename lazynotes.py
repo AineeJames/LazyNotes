@@ -113,7 +113,7 @@ def imgcrop(imgpath):
 def printinstructs():
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\nInstructions:", text_color='lightblue')
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\ty = keep file\n\tn = exclude file from note sheet", text_color='lightblue')
-    window['-ML-'+sg.WRITE_ONLY_KEY].print("\t, (<) = go back to the previous imgage\n\t. (>) = move to the next image", text_color='lightblue')
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\t< = go back to the previous imgage\n\t> = move to the next image", text_color='lightblue')
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\tq = quit selection, all files are considered", text_color='lightblue')
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\tenter = confirm selections", text_color='lightblue')
 
