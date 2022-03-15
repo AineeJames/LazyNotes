@@ -124,6 +124,7 @@ def getextractednum():
 
 def handleselection():
     while True:
+        # below is bad; e.g) crop_1.png, crop_2.png, crop_4.png will cause crash. File may be removed because duplicateS
         croppath = Path.cwd() / "extracted" / f"crop_{currfilenum}.png"
         image = Image.open(str(croppath))
         image.thumbnail((700, 700))
