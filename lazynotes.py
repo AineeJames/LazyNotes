@@ -92,19 +92,22 @@ def imgcrop(imgpath):
                 extractedimgpath = Path.cwd() / 'extracted' / f"crop_{cropnum}.jpg"
                 cv2.imwrite(str(extractedimgpath), cropped_box_sized)
 
+    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Produced {cropnum} boxes...")
+    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Removing duplicate boxes...")
+    search = dif(str(extractedpath), delete=True, silent_del=True, show_output=False)
+
 # DarkGrey14
 sg.theme('DarkGrey14')
 
 # All the stuff inside your window.
 layout = [  [sg.Text("Choose a *.pdf file to process...", font = ("Bahnschrift", 12)), sg.FileBrowse(file_types = (("PDF Files", "*.pdf"),), key = '-INPDF-', font = ("Bahnschrift", 12))],
             [sg.Button('Confirm Selection', key = '-CONFIRMPDF-', font = ("Bahnschrift", 12))],
-            [sg.MLine(key='-ML-'+ sg.WRITE_ONLY_KEY, size=(100, 8), font = ("Bahnschrift", 10))]  ]
+            [sg.MLine(key='-ML-'+ sg.WRITE_ONLY_KEY, size=(100, 8), font = ("Bahnschrift", 10))], 
+            [sg.Image(filename='', key='-BOX-')] ]
 
 # Create the Window
-window = sg.Window('LazyNotes', layout, element_justification='c')
+window = sg.Window('LazyNotes', layout, element_justification='c', return_keyboard_events=True)
 
-# window['-ML-'+sg.WRITE_ONLY_KEY].print('\n', end='')
- 
 # Event Loop to process "events" and get the "values" of the inputs
 while True:
 
@@ -112,6 +115,9 @@ while True:
 
     if event == sg.WIN_CLOSED: # if user closes window or clicks cancel
         break
+
+    if len(event) == 1: # keyboard input
+        window['-ML-'+sg.WRITE_ONLY_KEY].print('%s - %s' % (event, ord(event)))
 
     if event == '-CONFIRMPDF-' and values['-INPDF-'] != "":  
         window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Converting {values['-INPDF-']} to images...")
