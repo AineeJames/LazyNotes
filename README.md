@@ -6,4 +6,4 @@ for you. By selecting a .pdf files, notes in rectangular or square boxes
 will be packed tightly onto an A4 page. The user can select which boxes to include and exclude as well.
 
 ## Example Output:
-<img src="imgs/exampleout.png" alt="example output" width="500"/>
+<img src="imgs/exampleoutput.png" alt="example output" width="500"/>

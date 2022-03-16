@@ -21,6 +21,7 @@ from rectpack import newPacker
 import pickle
 import logging
 logging.basicConfig(filename='log.txt', encoding='utf-8', level=logging.CRITICAL)
+pdf = FPDF() # initialize pdf library
 
 def pdftoimg(pdfpath):
     zoom_x = 2.0  # horizontal zoom
@@ -118,11 +119,12 @@ def imgcrop(imgpath):
         wprint("Please try a different file...")
 
 def printinstructs():
-    window['-ML-'+sg.WRITE_ONLY_KEY].print("\nInstructions:", text_color='lightblue')
-    window['-ML-'+sg.WRITE_ONLY_KEY].print("\ty = keep file\n\tn = exclude file from note sheet", text_color='lightblue')
-    window['-ML-'+sg.WRITE_ONLY_KEY].print("\t< = go back to the previous imgage\n\t> = move to the next image", text_color='lightblue')
-    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tq = quit selection, all files are considered", text_color='lightblue')
-    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tg = confirm selections, and generate", text_color='lightblue')
+    instruct_color = 'lightblue'
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\nInstructions:", text_color=instruct_color)
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\ty = keep file\n\tn = exclude file from note sheet", text_color=instruct_color)
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\t< = go back to the previous imgage\n\t> = move to the next image", text_color=instruct_color)
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tq = quit selection, all files are considered", text_color=instruct_color)
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tg = confirm selections, and generate", text_color=instruct_color)
 
 def getextractednum():
     extractedpath = Path.cwd() / 'extracted' 
@@ -223,6 +225,17 @@ def pack():
             wprint("Packer ran out of images...")
             break
     wprint('Done packing...')
+
+    # outputs the combined images into one pdf
+    wprint("Creating pdf...")
+    outpath = str(Path.cwd() / 'output')
+    outfiles = [f for f in listdir(outpath) if isfile(join(outpath, f))]
+    for file in outfiles:
+        filepath = Path.cwd() / "output" / file
+        pdf.add_page()
+        pdf.image(str(filepath), 0, 0, 210, 297)
+    pdfpath = Path.cwd() / "output" / "output.pdf"
+    pdf.output(pdfpath, "F")
 
 currfilenum = 0
 user_can_input = False
