@@ -1,7 +1,6 @@
 # LazyNotes
 
-<img src="imgs/gui.png" alt="gui" width="500"/>
-
+<img src="imgs/gui.png" alt="gui" width="750"/>
 ## Description:
 LazyNotes utilizes opencv, packer, and other tools to create note sheets
 for you. By selecting a .pdf files, notes in rectangular or square boxes
