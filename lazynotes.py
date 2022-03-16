@@ -108,10 +108,14 @@ def imgcrop(imgpath):
     window['-PROG-'].update(0, 1)
     window['-BARPERCENT-'].update("0%")
 
-    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Produced {cropnum} boxes...")
-    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Removing duplicate boxes...")
-    search = dif(str(extractedpath), delete=True, silent_del=True, show_output=False)
-    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Done removing duplicates...")
+    if (cropnum > 0):
+        window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Produced {cropnum} boxes...")
+        window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Removing duplicate boxes...")
+        search = dif(str(extractedpath), delete=True, silent_del=True, show_output=False)
+        window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Done removing duplicates...")
+    else:
+        wprint("Could not find any boxes in the given .pdf...")
+        wprint("Please try a different file...")
 
 def printinstructs():
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\nInstructions:", text_color='lightblue')
