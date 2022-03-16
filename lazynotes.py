@@ -136,6 +136,7 @@ def handleselection():
             image.save(bio, format="PNG")
             window["-BOXIMAGE-"].update(data=bio.getvalue())
             window["-SELECTION-"].update(f"Selection: {fileselectlist[currfilenum]}")
+            sleep(0.1)
 
 def removeselected(select_list):
     extpath = Path.cwd() / 'extracted'
@@ -148,6 +149,10 @@ def removeselected(select_list):
             window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Deleting {delpath}...")
             remove(delpath)
 
+def pack():
+    window["-BOXIMAGE-"].update('')
+    window["-SELECTION-"].update("")
+    print("PACK FUNCTION HERE")
 
 currfilenum = 0
 user_can_input = False
@@ -188,9 +193,9 @@ while True:
             if (currfilenum < numoffiles - 1):
                 currfilenum += 1
         elif (event == 'q'):
+            sel_done = True
             window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Ignoring selection, considering all boxes for note sheet...")
-            # pack
-            pass
+            pack()
         elif (event == 'g'):
             unselected_box = False
             sel_done = True
@@ -204,8 +209,7 @@ while True:
                     break
             if (unselected_box == False):
                 removeselected(fileselectlist)
-                # pack
-                pass
+                pack()
 
     if event is not None and user_can_input == True: # handle arrow keys
         numoffiles = getextractednum()
