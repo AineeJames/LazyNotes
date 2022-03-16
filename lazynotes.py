@@ -17,6 +17,8 @@ import fitz
 import threading
 import io
 from PIL import Image
+from rectpack import newPacker
+import pickle
 import logging
 logging.basicConfig(filename='log.txt', encoding='utf-8', level=logging.CRITICAL)
 
@@ -136,7 +138,9 @@ def handleselection():
             image.save(bio, format="PNG")
             window["-BOXIMAGE-"].update(data=bio.getvalue())
             window["-SELECTION-"].update(f"Selection: {fileselectlist[currfilenum]}")
-            sleep(0.1)
+           
+    window["-BOXIMAGE-"].update('')
+    window["-SELECTION-"].update("")
 
 def removeselected(select_list):
     extpath = Path.cwd() / 'extracted'
@@ -149,10 +153,72 @@ def removeselected(select_list):
             window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Deleting {delpath}...")
             remove(delpath)
 
+def wprint(message):
+     window['-ML-'+sg.WRITE_ONLY_KEY].print(message)
+
 def pack():
-    window["-BOXIMAGE-"].update('')
-    window["-SELECTION-"].update("")
-    print("PACK FUNCTION HERE")
+
+    outputpath = Path.cwd() / 'output' 
+    try:
+        outputpath.mkdir(parents=True, exist_ok=False) 
+    except FileExistsError:
+        pass
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("Clearing output directory...")
+    for f in listdir(outputpath):
+        remove(join(outputpath, f))
+
+    input_dir = str(Path.cwd() / 'extracted')
+    border = 3
+    width = 4000
+    aspect = math.sqrt(2)
+    debug = False
+    output_dir = str(Path.cwd() / 'output')
+
+    files = sum([glob.glob(join(input_dir, '*.' + e)) for e in ['jpg', 'jpeg', 'png']], [])
+    wprint('Found %d files in %s...' % (len(files), input_dir))
+    wprint('Getting images sizes...')
+    for count in range(100):
+        sizes = [(im_file, cv2.imread(im_file).shape) for im_file in files]
+        # NOTE: you could pick a different packing algo by setting pack_algo=..., e.g. pack_algo=rectpack.SkylineBlWm
+        packer = newPacker(rotation=False)
+        for i, r in enumerate(sizes):
+            packer.add_rect(r[1][1] + border * 2, r[1][0] + border * 2, rid=i)
+        out_w = width
+        aspect_ratio_wh = aspect
+        out_h = int(out_w * aspect_ratio_wh)
+        packer.add_bin(out_w, out_h)
+        wprint('Packing...')
+        packer.pack()
+        output_im = np.full((out_h, out_w, 3), 255, np.uint8)
+        used = []
+        for rect in packer.rect_list():
+            b, x, y, w, h, rid = rect
+            orig_file_name = sizes[rid][0]
+            used.append(orig_file_name)
+            im = cv2.imread(orig_file_name, cv2.IMREAD_COLOR)
+            output_im[out_h - y - h + border : out_h - y - border, x + border:x+w - border] = im
+            if debug:
+                cv2.rectangle(output_im, (x,out_h - y - h), (x+w,out_h - y), (255,0,0), 3)
+                cv2.putText(output_im, "%d"%rid, (x, out_h - y), cv2.FONT_HERSHEY_PLAIN, 3.0, (0,0,255), 2)
+        unusedfiles = []
+        for file in files:
+            fileused = False
+            for usedfile in used:
+                if file == usedfile:
+                    fileused = True
+            if(not fileused):
+                unusedfiles.append(file)
+        wprint('Used %d of %d images...' % (len(used), len(files)))
+        files = unusedfiles
+        filename = str(Path.cwd() / 'output' / f'out_{count}.png')
+        # filename = f"{output_dir}out_{count}.png"
+        # filename = f"{(output).split('.')[0]}_{count}.png"
+        wprint(f'Writing image output as {filename}...')
+        cv2.imwrite(filename, output_im)
+        if(len(files) == 0):
+            wprint("Packer ran out of images...")
+            break
+    wprint('Done packing...')
 
 currfilenum = 0
 user_can_input = False
@@ -194,11 +260,11 @@ while True:
                 currfilenum += 1
         elif (event == 'q'):
             sel_done = True
+            user_can_input == False
             window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Ignoring selection, considering all boxes for note sheet...")
             pack()
         elif (event == 'g'):
             unselected_box = False
-            sel_done = True
             for i, s in enumerate(fileselectlist):
                 if (s == 'no selection'):
                     unselected_box = True
@@ -208,6 +274,8 @@ while True:
                     printinstructs()
                     break
             if (unselected_box == False):
+                user_can_input == False
+                sel_done = True
                 removeselected(fileselectlist)
                 pack()
 
