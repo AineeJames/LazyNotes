@@ -14,10 +14,11 @@ import sys
 import tkinter as tk
 import PySimpleGUI as sg
 import fitz
-import logging
 import threading
 import io
 from PIL import Image
+import logging
+logging.basicConfig(filename='log.txt', encoding='utf-8', level=logging.CRITICAL)
 
 def pdftoimg(pdfpath):
     zoom_x = 2.0  # horizontal zoom
@@ -99,7 +100,7 @@ def imgcrop(imgpath):
                 dim = (width, height)
                 cropped_box_sized = cv2.resize(cropped_box, dim, interpolation = cv2.INTER_AREA)
 
-                extractedimgpath = Path.cwd() / 'extracted' / f"crop_{cropnum}.png"
+                extractedimgpath = Path.cwd() / 'extracted' / f"crop_{cropnum:06}.png"
                 cv2.imwrite(str(extractedimgpath), cropped_box_sized)
 
     window['-PROG-'].update(0, 1)
@@ -115,7 +116,7 @@ def printinstructs():
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\ty = keep file\n\tn = exclude file from note sheet", text_color='lightblue')
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\t< = go back to the previous imgage\n\t> = move to the next image", text_color='lightblue')
     window['-ML-'+sg.WRITE_ONLY_KEY].print("\tq = quit selection, all files are considered", text_color='lightblue')
-    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tenter = confirm selections", text_color='lightblue')
+    window['-ML-'+sg.WRITE_ONLY_KEY].print("\tg = confirm selections, and generate", text_color='lightblue')
 
 def getextractednum():
     extractedpath = Path.cwd() / 'extracted' 
@@ -123,17 +124,34 @@ def getextractednum():
     return num
 
 def handleselection():
-    while True:
-        extpath = Path.cwd() / 'extracted'
-        extfiles = [f for f in listdir(str(extpath)) if isfile(join(str(extpath), f))]
-        box_path = Path.cwd() / 'extracted' / extfiles[currfilenum]
-        image = Image.open(box_path)
-        image.thumbnail((700, 700))
-        bio = io.BytesIO()
-        image.save(bio, format="PNG")
-        window["-BOXIMAGE-"].update(data=bio.getvalue())
+    while not sel_done:
+        if (user_can_input == True):
+            extpath = Path.cwd() / 'extracted'
+            extfiles = [f for f in listdir(str(extpath)) if isfile(join(str(extpath), f))]
+            extfiles.sort()
+            box_path = Path.cwd() / 'extracted' / extfiles[currfilenum]
+            image = Image.open(box_path)
+            image.thumbnail((700, 700))
+            bio = io.BytesIO()
+            image.save(bio, format="PNG")
+            window["-BOXIMAGE-"].update(data=bio.getvalue())
+            window["-SELECTION-"].update(f"Selection: {fileselectlist[currfilenum]}")
+
+def removeselected(select_list):
+    extpath = Path.cwd() / 'extracted'
+    extfiles = [f for f in listdir(str(extpath)) if isfile(join(str(extpath), f))]
+    extfiles.sort()
+    logging.info(f"After removal list: {extfiles}")
+    for i, s in enumerate(select_list):
+        if (s == 'exclude'):
+            delpath = Path.cwd() / 'extracted' / extfiles[i]
+            window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Deleting {delpath}...")
+            remove(delpath)
+
 
 currfilenum = 0
+user_can_input = False
+sel_done = False
 
 # DarkGrey14
 sg.theme('DarkGrey14')
@@ -144,7 +162,8 @@ layout = [  [sg.Text("LazyNotes Notesheet Generator", font = ("Bahnschrift", 30)
             [sg.Button('Confirm Selection', key = '-CONFIRMPDF-', font = ("Bahnschrift", 12))],
             [sg.MLine(key='-ML-'+ sg.WRITE_ONLY_KEY, size=(100, 8), font = ("Bahnschrift", 10))], 
             [sg.ProgressBar(1, orientation='h', size=(20,20), key='-PROG-'), sg.Text("0%", key = "-BARPERCENT-", font = ("Bahnschrift", 10))],
-            [sg.Image('', size=(0,0), key = "-BOXIMAGE-")]  ]
+            [sg.Image('', size=(0,0), key = "-BOXIMAGE-")],
+            [sg.Text('', font = ("Bahnschrift", 12), key = '-SELECTION-' )]  ]
 
 # Create the Window
 window = sg.Window('LazyNotes', layout, element_justification='c', return_keyboard_events=True, use_default_focus=False)
@@ -153,22 +172,42 @@ window = sg.Window('LazyNotes', layout, element_justification='c', return_keyboa
 while True:
 
     event, values = window.Read()
+    print(event)
 
     if event == sg.WIN_CLOSED: # if user closes window or clicks cancel
         break
 
-    if len(event) == 1: # keyboard input
+    if len(event) == 1 and user_can_input == True: # keyboard input
         numoffiles = getextractednum()
         if (event == 'y'):
-            fileselectlist[currfilenum - 1] = 'y'
+            fileselectlist[currfilenum] = 'keep'
             if (currfilenum < numoffiles - 1):
                 currfilenum += 1
         elif (event == 'n'):
-            fileselectlist[currfilenum - 1] = 'n'
+            fileselectlist[currfilenum] = 'exclude'
             if (currfilenum < numoffiles - 1):
                 currfilenum += 1
+        elif (event == 'q'):
+            window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Ignoring selection, considering all boxes for note sheet...")
+            # pack
+            pass
+        elif (event == 'g'):
+            unselected_box = False
+            sel_done = True
+            for i, s in enumerate(fileselectlist):
+                if (s == 'no selection'):
+                    unselected_box = True
+                    currfilenum = i
+                    print(f"no selection for index: {i}")
+                    window['-ML-'+sg.WRITE_ONLY_KEY].print(f"Please provide a selection for this image...")
+                    printinstructs()
+                    break
+            if (unselected_box == False):
+                removeselected(fileselectlist)
+                # pack
+                pass
 
-    if event is not None: # handle arrow keys
+    if event is not None and user_can_input == True: # handle arrow keys
         numoffiles = getextractednum()
         if (event == "Right:39" and currfilenum < numoffiles - 1):
             currfilenum += 1
@@ -183,7 +222,8 @@ while True:
 
     if event == '-THREAD DONE-':
         printinstructs()
-        fileselectlist = [None] * getextractednum()
+        fileselectlist = ['no selection'] * getextractednum()
+        user_can_input = True
         threading.Thread(target=handleselection, daemon=True).start()
 
 window.close()
