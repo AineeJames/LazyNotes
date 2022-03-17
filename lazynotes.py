@@ -20,7 +20,12 @@ from PIL import Image
 from rectpack import newPacker
 import pickle
 import logging
-logging.basicConfig(filename='log.txt', encoding='utf-8', level=logging.CRITICAL)
+# logging.basicConfig(filename='log.txt', encoding='utf-8', level=logging.CRITICAL)
+logging.basicConfig(handlers=[logging.FileHandler(filename="log.txt", 
+                                                 encoding='utf-8', mode='w')],
+                    format="%(asctime)s %(name)s:%(levelname)s:%(message)s", 
+                    datefmt="%F %A %T", 
+                    level=logging.CRITICAL)
 pdf = FPDF() # initialize pdf library
 
 def pdftoimg(pdfpath):
